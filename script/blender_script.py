@@ -847,7 +847,7 @@ if __name__ == "__main__":
         "--engine",
         type=str,
         default="BLENDER_EEVEE",
-        choices=["CYCLES", "BLENDER_EEVEE"],
+        choices=["CYCLES", "BLENDER_EEVEE_NEXT"],
     )
     parser.add_argument(
         "--only_northern_hemisphere",
