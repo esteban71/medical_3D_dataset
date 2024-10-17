@@ -64,10 +64,10 @@ def sample_point_on_sphere(radius: float) -> Tuple[float, float, float]:
 
 
 def _sample_spherical(
-    radius_min: float = 1.5,
-    radius_max: float = 2.0,
-    maxz: float = 1.6,
-    minz: float = -0.75,
+        radius_min: float = 1.5,
+        radius_max: float = 2.0,
+        maxz: float = 1.6,
+        minz: float = -0.75,
 ) -> np.ndarray:
     """Sample a random point in a spherical shell.
 
@@ -93,11 +93,11 @@ def _sample_spherical(
 
 
 def randomize_camera(
-    radius_min: float = 1.5,
-    radius_max: float = 2.2,
-    maxz: float = 2.2,
-    minz: float = -2.2,
-    only_northern_hemisphere: bool = False,
+        radius_min: float = 1.5,
+        radius_max: float = 2.2,
+        maxz: float = 2.2,
+        minz: float = -2.2,
+        only_northern_hemisphere: bool = False,
 ) -> bpy.types.Object:
     """Randomizes the camera location and rotation inside of a spherical shell.
 
@@ -167,13 +167,13 @@ def _set_camera_at_size(i: int, scale: float = 1.5) -> bpy.types.Object:
 
 
 def _create_light(
-    name: str,
-    light_type: Literal["POINT", "SUN", "SPOT", "AREA"],
-    location: Tuple[float, float, float],
-    rotation: Tuple[float, float, float],
-    energy: float,
-    use_shadow: bool = False,
-    specular_factor: float = 1.0,
+        name: str,
+        light_type: Literal["POINT", "SUN", "SPOT", "AREA"],
+        location: Tuple[float, float, float],
+        rotation: Tuple[float, float, float],
+        energy: float,
+        use_shadow: bool = False,
+        specular_factor: float = 1.0,
 ):
     """Creates a light object.
 
@@ -324,7 +324,7 @@ def load_object(object_path: str) -> None:
 
 
 def scene_bbox(
-    single_obj: Optional[bpy.types.Object] = None, ignore_matrix: bool = False
+        single_obj: Optional[bpy.types.Object] = None, ignore_matrix: bool = False
 ) -> Tuple[Vector, Vector]:
     """Returns the bounding box of the scene.
 
@@ -537,7 +537,7 @@ def _get_random_color() -> Tuple[float, float, float, float]:
 
 
 def _apply_color_to_object(
-    obj: bpy.types.Object, color: Tuple[float, float, float, float]
+        obj: bpy.types.Object, color: Tuple[float, float, float, float]
 ) -> None:
     """Applies the given color to the object.
 
@@ -575,7 +575,7 @@ class MetadataExtractor:
     """Class to extract metadata from a Blender scene."""
 
     def __init__(
-        self, object_path: str, scene: bpy.types.Scene, bdata: bpy.types.BlendData
+            self, object_path: str, scene: bpy.types.Scene, bdata: bpy.types.BlendData
     ) -> None:
         """Initializes the MetadataExtractor.
 
@@ -642,7 +642,7 @@ class MetadataExtractor:
         linked_libraries_filepaths = self._get_linked_libraries_filepaths()
 
         all_filepaths = (
-            image_filepaths | material_filepaths | linked_libraries_filepaths
+                image_filepaths | material_filepaths | linked_libraries_filepaths
         )
         if "" in all_filepaths:
             all_filepaths.remove("")
@@ -688,7 +688,7 @@ class MetadataExtractor:
                 shape_keys = obj.data.shape_keys
                 if shape_keys is not None:
                     total_shape_key_count += (
-                        len(shape_keys.key_blocks) - 1
+                            len(shape_keys.key_blocks) - 1
                     )  # Subtract 1 to exclude the Basis shape key
         return total_shape_key_count
 
@@ -731,10 +731,10 @@ class MetadataExtractor:
 
 
 def render_object(
-    object_file: str,
-    num_renders: int,
-    only_northern_hemisphere: bool,
-    output_dir: str,
+        object_file: str,
+        num_renders: int,
+        only_northern_hemisphere: bool,
+        output_dir: str,
 ) -> None:
     """Saves rendered images with its camera matrix and metadata of the object.
 
@@ -822,7 +822,6 @@ def render_object(
         scene.render.filepath = render_path
         bpy.ops.render.render(write_still=True)
 
-
         # save camera RT matrix
         rt_matrix = get_3x4_RT_matrix_from_blender(camera)
         rt_matrix_path = os.path.join(output_dir, f"{i:03d}.npy")
@@ -861,7 +860,13 @@ if __name__ == "__main__":
         default=12,
         help="Number of renders to save of the object.",
     )
-    argv = sys.argv[sys.argv.index("--") + 1 :]
+    parser.add_argument(
+        "--captions",
+        type=str,
+        nargs="+",
+        help="Captions to save in the metadata.json file.",
+    )
+    argv = sys.argv[sys.argv.index("--") + 1:]
     args = parser.parse_args(argv)
 
     context = bpy.context
@@ -891,10 +896,10 @@ if __name__ == "__main__":
         "cycles"
     ].preferences.compute_device_type = "CUDA"  # or "OPENCL"
 
-    # Render the images
-    render_object(
-        object_file=args.object_path,
-        num_renders=args.num_renders,
-        only_northern_hemisphere=args.only_northern_hemisphere,
-        output_dir=args.output_dir,
-    )
+# Render the images
+render_object(
+    object_file=args.object_path,
+    num_renders=args.num_renders,
+    only_northern_hemisphere=args.only_northern_hemisphere,
+    output_dir=args.output_dir,
+)

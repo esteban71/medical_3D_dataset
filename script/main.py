@@ -81,8 +81,9 @@ def handle_found_object(
         target_directory = os.path.join(temp_dir, save_uid)
         logger.info(f"Rendering object {file_identifier} to {target_directory}.")
         os.makedirs(target_directory, exist_ok=True)
-        args += f" --output_dir {target_directory}"
+        args += f" --output_dir '{target_directory}'"
 
+        logger.info(f"Platform: {platform.system()}.")
         # check for Linux / Ubuntu or MacOS
         if platform.system() == "Linux" and using_gpu:
             args += " --engine BLENDER_EEVEE_NEXT"
