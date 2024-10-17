@@ -6,6 +6,7 @@ import math
 import os
 import random
 import sys
+from importlib.metadata import metadata
 from typing import Any, Callable, Dict, Generator, List, Literal, Optional, Set, Tuple
 
 import bpy
@@ -826,6 +827,9 @@ def render_object(
         rt_matrix = get_3x4_RT_matrix_from_blender(camera)
         rt_matrix_path = os.path.join(output_dir, f"{i:03d}.npy")
         np.save(rt_matrix_path, rt_matrix)
+
+
+
 
 
 if __name__ == "__main__":

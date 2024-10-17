@@ -5,3 +5,9 @@ tqdm
 loguru
 fsspec>=2022.11.0
 gputil==1.4.0
+fire
+objaverse-xl
+objaverse
+bpy
+mathutils
+datasets

@@ -15,10 +15,13 @@ import fire
 import fsspec
 import GPUtil
 import pandas as pd
+from huggingface_hub import HfApi, HfFolder, login
 from loguru import logger
 
 import objaverse.xl as oxl
 from objaverse.utils import get_uid_from_str
+from datasets import load_dataset
+
 
 
 def handle_found_object(
@@ -93,7 +96,7 @@ def handle_found_object(
             # As far as I know, MacOS does not support BLENER_EEVEE, which uses GPU
             # rendering. Generally, I'd only recommend using MacOS for debugging and
             # small rendering jobs, since CYCLES is much slower than BLENDER_EEVEE.
-            args += " --engine CYCLES"
+            args += " --engine BLENDER_EEVEE_NEXT"
         else:
             raise NotImplementedError(f"Platform {platform.system()} is not supported.")
 
@@ -102,7 +105,7 @@ def handle_found_object(
             args += " --only_northern_hemisphere"
 
         # get the command to run
-        command = f"blender-4.2.2-linux-x64/blender --background --python blender_script.py -- {args}"
+        command = f"blender-4.2.3-linux-x64/blender --background --python blender_script.py -- {args}"
         if using_gpu:
             command = f"export DISPLAY=:0.{gpu_i} && {command}"
 
@@ -136,7 +139,49 @@ def handle_found_object(
         # move the files to the render directory with the save_uid
         fs.mv(target_directory, os.path.join(path, file_identifier), recursive=True)
 
+
+        # create metadata file for hunging face
+        create_metadata_hunging_face(os.path.join(path, file_identifier), metadata)
+
+
         return True
+
+def create_metadata_hunging_face(local_path: str, metadata:Dict[str, Any]):
+    # verify that metadata in rendir_exist
+    metadata_file = os.path.join(local_path, 'metadata.jsonl')
+    metadata_render = []
+
+    # get all file in the local path
+    for file in os.listdir(local_path):
+        # get only npy and png files
+        if file.endswith('.png'):
+            # get the name of the file
+            name = file.split('.')[0]
+            # create metadata file
+            npy_file = os.path.join(local_path, f"{name}.npy")
+            if os.path.exists(npy_file):
+                npy_path = npy_file
+            else:
+                raise FileNotFoundError(f"File {npy_file} not found.")
+
+            metadata_render.append({
+                "img_path": os.path.join(local_path, file),
+                "npy_path": npy_path,
+                "caption": metadata["caption"]
+            })
+
+            # save metadata file
+            with open(metadata_file, 'w') as f:
+                # order metadata_render by file_name
+                metadata_render_sorted = sorted(metadata_render, key=lambda x: x['img_path']);
+                for metadata in metadata_render_sorted:
+                    json.dump(metadata, f, indent=4)
+                    f.write("\n")
+
+
+
+
+
 
 
 def get_objects(path: str) -> pd.DataFrame:
@@ -145,8 +190,8 @@ def get_objects(path: str) -> pd.DataFrame:
 
 
 def render_objects(
-        render_dir: str = "~/obj-3D/renders/",
-        path: str = "~/obj-3D/dataset_3D.json",
+        render_dir: str = "~/EPITA/PFEE/obj-3D/renders/",
+        path: str = "~/EPITA/PFEE/obj-3D/dataset_3D.json",
         download_dir: Optional[str] = None,
         num_renders: int = 1,
         processes: Optional[int] = None,
@@ -221,6 +266,31 @@ def render_objects(
             gpu_devices=parsed_gpu_devices,
             render_timeout=render_timeout,
         )
+
+        token = "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"
+        login(token)
+        dataset = load_dataset("json",data_files="./dataset/Scalpel/metadata.jsonl", split='train')
+        dataset = dataset.map(map_function)
+        dataset = dataset.remove_columns(["img_path", "npy_path"])
+
+        dataset.push_to_hub("Medical-3D/medical-3D")
+
+
+def map_function(example):
+    from PIL import Image
+    import numpy as np
+
+    # Open the image file using Pillow
+    image = Image.open(example["img_path"])
+
+    # Load the numpy file and flatten it
+    npy_data = np.load(example["npy_path"]).flatten()
+
+    return {
+        "image": image,
+        "npy_data": npy_data,
+        "caption": example["caption"]
+    }
 
 
 if __name__ == "__main__":
