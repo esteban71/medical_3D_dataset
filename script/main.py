@@ -141,15 +141,19 @@ def handle_found_object(
 
 
         # create metadata file for hunging face
-        create_metadata_hunging_face(os.path.join(path, file_identifier), metadata)
+        create_metadata_hunging_face(os.path.join(path, file_identifier),render_dir, metadata)
 
 
         return True
 
-def create_metadata_hunging_face(local_path: str, metadata:Dict[str, Any]):
+def create_metadata_hunging_face(local_path: str, render_dir : str, metadata:Dict[str, Any]) -> None:
     # verify that metadata in rendir_exist
-    metadata_file = os.path.join(local_path, 'metadata.jsonl')
-    metadata_render = []
+    metadata_file = os.path.join(render_dir, 'metadata.json')
+    if os.path.exists(metadata_file):
+        with open(metadata_file, 'r') as f:
+            metadata_render = json.load(f)
+    else:
+        metadata_render = []
 
     # get all file in the local path
     for file in os.listdir(local_path):
@@ -174,10 +178,7 @@ def create_metadata_hunging_face(local_path: str, metadata:Dict[str, Any]):
             with open(metadata_file, 'w') as f:
                 # order metadata_render by file_name
                 metadata_render_sorted = sorted(metadata_render, key=lambda x: x['img_path']);
-                for metadata in metadata_render_sorted:
-                    json.dump(metadata, f, indent=4)
-                    f.write("\n")
-
+                json.dump(metadata_render_sorted, f, indent=4)
 
 
 
@@ -255,6 +256,7 @@ def render_objects(
     objects = get_objects(path)
     logger.info(f"Provided {len(objects)} objects to render.")
     for path, name, caption in objects[["path", "name", "caption"]].values:
+        logger.info(f"Rendering object {name} from {path}.")
         path = os.path.expanduser(path)
         handle_found_object(
             local_path=path,
@@ -269,11 +271,16 @@ def render_objects(
 
         token = "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"
         login(token)
-        dataset = load_dataset("json",data_files="./dataset/Scalpel/metadata.jsonl", split='train')
+
+
+    try:
+        dataset = load_dataset("json",data_files=f"./dataset/metadata.json", split='train')
         dataset = dataset.map(map_function)
         dataset = dataset.remove_columns(["img_path", "npy_path"])
 
         dataset.push_to_hub("Medical-3D/medical-3D")
+    except Exception as e:
+        logger.error(f"error: {e}")
 
 
 def map_function(example):
