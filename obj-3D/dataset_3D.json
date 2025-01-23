@@ -7,6 +7,36 @@
   {
     "path": "~/EPITA/PFEE/obj-3D/Trauma_Shears/Trauma_Shears.fbx",
     "name": "TraumaShears",
-    "caption": "a zoomed out DSLR photo of a Trauma Shears"
+    "caption": "a zoomed out DSLR photo of trauma shears"
+  },
+  {
+    "path": "~/EPITA/PFEE/obj-3D/Dental_Mirror/dentalMirror.fbx",
+    "name": "DentalMirror",
+    "caption": "a zoomed out DSLR photo of a dental mirror"
+  },
+  {
+    "path": "~/EPITA/PFEE/obj-3D/Medical_Tray/medicalTray.fbx",
+    "name": "MedicalTray",
+    "caption": "a zoomed out DSLR photo of a medical tray"
+  },
+  {
+    "path": "~/EPITA/PFEE/obj-3D/Pliers_Angled_Stainless_Steel/Pliers_Angled_Stainless_Steel.fbx",
+    "name": "PliersAngledStainlessSteel",
+    "caption": "a zoomed out DSLR photo of angled stainless steel pliers"
+  },
+  {
+    "path": "~/EPITA/PFEE/obj-3D/Simple_Forceps/simple_forceps.fbx",
+    "name": "SimpleForceps",
+    "caption": "a zoomed out DSLR photo of simple forceps"
+  },
+  {
+    "path": "~/EPITA/PFEE/obj-3D/Woodsons_Shutter_Spatula/WOODSONSHUTTERSPATULA.fbx",
+    "name": "WoodsonsShutterSpatula",
+    "caption": "a zoomed out DSLR photo of a Woodsons shutter spatula"
+  },
+  {
+    "path": "~/EPITA/PFEE/obj-3D/Woodsons_Shutter_Spatula_2/WOODSONSHUTTERSPATULA_2.fbx",
+    "name": "WoodsonsShutterSpatula2",
+    "caption": "a zoomed out DSLR photo of a Woodsons shutter spatula"
   }
 ]
